@@ -1,0 +1,19 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
+<!--
+  Template for the app's environment configuration.
+
+  Copy this file to Environment.plist (same folder) and fill in the values —
+  Environment.plist is gitignored so real keys never leave your machine.
+
+  JEBY_API_URL  Base URL of the jeby-go backend, no trailing slash.
+  JEBY_API_KEY  Key the backend accepts as its X-API-Key header.
+-->
+<plist version="1.0">
+<dict>
+	<key>JEBY_API_URL</key>
+	<string>https://your-jeby-go-host.example.com</string>
+	<key>JEBY_API_KEY</key>
+	<string>replace-me</string>
+</dict>
+</plist>

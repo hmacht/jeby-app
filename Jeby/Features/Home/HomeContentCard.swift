@@ -107,8 +107,9 @@ struct HomeContentCard: View {
             if model.alerts.isEmpty {
                 AlertBanner(level: .info, message: "NOAA has no active alerts for the Vineyard.")
             } else {
+                // Any active alert reads red, whatever NOAA's severity says.
                 ForEach(model.alerts) { alert in
-                    AlertBanner(level: alert.level, title: alert.event, message: alert.description)
+                    AlertBanner(level: .danger, title: alert.event, message: alert.description)
                 }
             }
         }

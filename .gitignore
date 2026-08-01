@@ -1,0 +1,17 @@
+# Environment / secrets — never commit these.
+Environment.plist
+*.env
+.env
+.env.*
+!Environment.example.plist
+
+# Xcode
+xcuserdata/
+*.xcuserstate
+DerivedData/
+build/
+*.xcscmblueprint
+*.xccheckout
+
+# macOS
+.DS_Store
