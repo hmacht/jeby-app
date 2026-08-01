@@ -28,7 +28,7 @@ struct SheetTabBar: View {
         .background(Color(.systemGray5), in: Capsule())
         .shadow(color: .black.opacity(0.18), radius: 12, y: 4)
         // Sits low, overlapping the bottom safe area.
-        .padding(.bottom, -24)
+        .padding(.bottom, -10)
     }
 
     private func tab(_ value: SheetTab, label: String, icon: String) -> some View {

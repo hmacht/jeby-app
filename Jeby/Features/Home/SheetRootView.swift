@@ -10,6 +10,11 @@ import SwiftUI
 
 struct SheetRootView: View {
     let model: HomeViewModel
+    /// True while the sheet sits at its short detent. Scrolling is off there, so
+    /// a swipe on the content is handed to the sheet and raises it over the map.
+    let isCollapsed: Bool
+    /// Pulling the report down past its top lowers the sheet again.
+    var onPullDown: () -> Void = {}
 
     @State private var tab: SheetTab = .report
     @State private var showPostReport = false
@@ -21,7 +26,11 @@ struct SheetRootView: View {
             Group {
                 switch tab {
                 case .report:
-                    HomeContentCard(model: model)
+                    HomeContentCard(
+                        model: model,
+                        scrollDisabled: isCollapsed,
+                        onPullDown: onPullDown
+                    )
                 case .feed:
                     FeedContent()
                 }

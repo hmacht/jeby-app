@@ -41,7 +41,12 @@ final class HomeViewModel {
     private(set) var asitcamURL: URL?
     private(set) var generatedAt = Date()
 
+    /// There's no pull-to-refresh — dragging the sheet down closes it — so the
+    /// report re-pulls itself on this interval.
+    private static let refreshInterval: Duration = .seconds(600)
+
     private let client: JebyClientProtocol
+    private var autoRefresh: Task<Void, Never>?
 
     init(client: JebyClientProtocol = JebyClient()) {
         self.client = client
@@ -107,14 +112,29 @@ final class HomeViewModel {
 
             self.generatedAt = Date()
             state = .loaded
+            startAutoRefresh()
         } catch {
             let message = (error as? LocalizedError)?.errorDescription ?? error.localizedDescription
             state = .failed(message)
         }
     }
 
-    /// Pull-to-refresh: re-pull for the current vessel without a full-screen spinner.
+    /// Re-pull for the current vessel without a full-screen spinner.
     func refresh() async {
         await load()
+    }
+
+    /// Starts the repeating background pull after the first successful load.
+    /// Weak so the loop dies with the model rather than keeping it alive.
+    private func startAutoRefresh() {
+        guard autoRefresh == nil else { return }
+
+        autoRefresh = Task { [weak self] in
+            while !Task.isCancelled {
+                try? await Task.sleep(for: HomeViewModel.refreshInterval)
+                guard !Task.isCancelled, let self else { return }
+                await self.refresh()
+            }
+        }
     }
 }

@@ -11,6 +11,12 @@ import SwiftUI
 
 struct HomeContentCard: View {
     let model: HomeViewModel
+    /// Set while the sheet is collapsed, so the swipe raises the sheet instead
+    /// of scrolling the report inside it.
+    var scrollDisabled = false
+    /// Called when the report is pulled down past its top, which lowers the
+    /// sheet back over the map the way Maps does.
+    var onPullDown: () -> Void = {}
 
     var body: some View {
         VStack(spacing: 0) {
@@ -98,8 +104,14 @@ struct HomeContentCard: View {
             .containerRelativeFrame(.horizontal)
         }
         .scrollBounceBehavior(.basedOnSize, axes: .horizontal)
+        .scrollDisabled(scrollDisabled)
         .scrollContentBackground(.hidden)
-        .refreshable { await model.refresh() }
+        // Overscroll past the top: how far the content has been dragged down.
+        .onScrollGeometryChange(for: CGFloat.self) { geo in
+            geo.contentOffset.y + geo.contentInsets.top
+        } action: { _, overscroll in
+            if overscroll < -90 { onPullDown() }
+        }
     }
 
     private var alertsSection: some View {

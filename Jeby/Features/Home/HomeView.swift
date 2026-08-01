@@ -14,6 +14,11 @@ struct HomeView: View {
     @State private var model = HomeViewModel()
     @State private var camera: MapCameraPosition = .region(HomeView.vineyardRegion)
     @State private var selectedStation: Station?
+    @State private var detent: PresentationDetent = HomeView.collapsedDetent
+    @State private var isRefreshing = false
+
+    /// The resting height of the sheet, showing the top half of the map.
+    static let collapsedDetent: PresentationDetent = .fraction(0.5)
 
     /// Martha's Vineyard Sound, framed to show both stations with padding and
     /// centered south of them so they sit above the sheet.
@@ -23,6 +28,20 @@ struct HomeView: View {
     )
 
     var body: some View {
+        // The button sits in the ZStack, not on the map, so only the map runs
+        // under the status bar.
+        ZStack(alignment: .topTrailing) {
+            map
+            refreshButton
+                .padding(.top, 8)
+                .padding(.trailing, 16)
+        }
+        .task {
+            if model.state == .idle { await model.load() }
+        }
+    }
+
+    private var map: some View {
         Map(position: $camera) {
             ForEach(model.stations) { station in
                 let feet = model.waveHeightFeet(for: station.code)
@@ -41,11 +60,16 @@ struct HomeView: View {
         .mapStyle(.standard(elevation: .realistic))
         .ignoresSafeArea(edges: .top)
         .sheet(isPresented: .constant(true)) {
-            SheetRootView(model: model)
-                .presentationDetents([.fraction(0.5), .large])
-                .presentationBackgroundInteraction(.enabled(upThrough: .fraction(0.5)))
+            SheetRootView(model: model, isCollapsed: detent == Self.collapsedDetent) {
+                detent = Self.collapsedDetent
+            }
+                .presentationDetents([Self.collapsedDetent, .large], selection: $detent)
+                // Apple Maps behavior: a swipe up on the card raises the sheet
+                // over the map first, and only scrolls once it's expanded.
+                .presentationContentInteraction(.resizes)
+                .presentationBackgroundInteraction(.enabled(upThrough: Self.collapsedDetent))
                 .presentationBackground(CardStyle.sheetSurface)
-                .presentationDragIndicator(.visible)
+                .presentationDragIndicator(.hidden)
                 .interactiveDismissDisabled()
                 .sheet(item: $selectedStation) { station in
                     StationDetailSheet(
@@ -56,9 +80,36 @@ struct HomeView: View {
                     .presentationDragIndicator(.visible)
                 }
         }
-        .task {
-            if model.state == .idle { await model.load() }
+    }
+
+    /// Manual re-pull of everything — pins, readings, report — for when the
+    /// ten-minute auto-refresh isn't soon enough.
+    private var refreshButton: some View {
+        Button {
+            guard !isRefreshing else { return }
+            Task {
+                isRefreshing = true
+                await model.refresh()
+                isRefreshing = false
+            }
+        } label: {
+            Group {
+                if isRefreshing {
+                    ProgressView()
+                        .controlSize(.small)
+                } else {
+                    Image(systemName: "arrow.clockwise")
+                        .font(.system(size: 16, weight: .semibold))
+                }
+            }
+            .foregroundStyle(.primary)
+            .frame(width: 40, height: 40)
+            .glassCircle()
+            .shadow(color: .black.opacity(0.15), radius: 4, y: 2)
         }
+        .buttonStyle(.plain)
+        .disabled(isRefreshing)
+        .accessibilityLabel("Refresh conditions")
     }
 }
 
@@ -88,6 +139,18 @@ private struct StationPin: View {
         .shadow(color: .black.opacity(0.25), radius: 3, y: 1)
         .scaleEffect(isSelected ? 1.15 : 1)
         .animation(.snappy, value: isSelected)
+    }
+}
+
+private extension View {
+    /// Liquid Glass where the OS has it, frosted material on older systems.
+    @ViewBuilder
+    func glassCircle() -> some View {
+        if #available(iOS 26.0, *) {
+            glassEffect(.regular.interactive(), in: Circle())
+        } else {
+            background(.ultraThinMaterial, in: Circle())
+        }
     }
 }
 
