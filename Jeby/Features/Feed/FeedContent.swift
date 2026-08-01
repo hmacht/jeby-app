@@ -34,6 +34,8 @@ struct FeedContent: View {
                 Text("Community reports will show up here.")
             }
             .frame(maxWidth: .infinity, maxHeight: .infinity)
+            // Sit above the floating pill rather than centering behind it.
+            .padding(.bottom, 120)
         }
     }
 }

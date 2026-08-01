@@ -56,7 +56,8 @@ struct HomeContentCard: View {
         case .idle, .loading:
             ProgressView("Pulling data from NOAA…")
                 .frame(maxWidth: .infinity, maxHeight: .infinity)
-                .padding(.top, 60)
+                // Sit above the floating pill rather than centering behind it.
+                .padding(.bottom, 120)
         case .failed(let message):
             errorView(message)
         case .loaded:
@@ -148,6 +149,7 @@ struct HomeContentCard: View {
             }
             .buttonStyle(.borderedProminent)
         }
-        .padding(.top, 40)
+        .frame(maxWidth: .infinity, maxHeight: .infinity)
+        .padding(.bottom, 120)
     }
 }
