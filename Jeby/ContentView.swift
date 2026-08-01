@@ -2,20 +2,30 @@
 //  ContentView.swift
 //  Jeby
 //
-//  Created by Henry Macht on 8/1/26.
+//  Root tab bar: Home (live conditions), Feed, and Profile.
 //
 
 import SwiftUI
 
 struct ContentView: View {
     var body: some View {
-        VStack {
-            Image(systemName: "globe")
-                .imageScale(.large)
-                .foregroundStyle(.tint)
-            Text("Hello, world!")
+        TabView {
+            HomeView()
+                .tabItem {
+                    Label("Home", systemImage: "house.fill")
+                }
+
+            FeedView()
+                .tabItem {
+                    Label("Feed", systemImage: "square.stack.3d.up.fill")
+                }
+
+            ProfileView()
+                .tabItem {
+                    Label("Profile", systemImage: "person.crop.circle.fill")
+                }
         }
-        .padding()
+        .preferredColorScheme(.dark)
     }
 }
 

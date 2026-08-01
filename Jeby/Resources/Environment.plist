@@ -1,0 +1,17 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
+<!--
+  Environment configuration for the Jeby app.
+
+  These values are read at runtime by AppEnvironment. Point JEBY_API_URL at the
+  jeby-go backend (no trailing slash) and set JEBY_API_KEY to a key the backend
+  accepts as its X-API-Key header.
+-->
+<plist version="1.0">
+<dict>
+	<key>JEBY_API_URL</key>
+	<string>https://jeby-gox.onrender.com</string>
+	<key>JEBY_API_KEY</key>
+	<string>jeby_j2nf32u3bgksa4wig4ajr3uiq3bu3qgb242f4</string>
+</dict>
+</plist>
