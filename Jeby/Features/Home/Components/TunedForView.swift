@@ -25,12 +25,8 @@ struct TunedForView: View {
             SectionHeader(title: "Tuned for", systemImage: "slider.horizontal.3")
 
             VStack(alignment: .leading, spacing: 12) {
-                HStack(spacing: 10) {
-                    Image(systemName: "ferry.fill")
-                        .foregroundStyle(.tint)
-                    Text(vessel.name)
-                        .font(.title3.weight(.semibold))
-                }
+                Text(vessel.name)
+                    .font(.title3.weight(.semibold))
 
                 Text(vessel.description)
                     .font(.subheadline)

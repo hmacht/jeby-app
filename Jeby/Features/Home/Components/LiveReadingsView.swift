@@ -32,7 +32,7 @@ private struct StationPassportCard: View {
 
     @State private var showDetail = false
 
-    private var base: Color { station.isMVCO ? .teal : .blue }
+    private var base: Color { CardStyle.tint(isMVCO: station.isMVCO) }
 
     private let columns = [
         GridItem(.flexible(), alignment: .leading),

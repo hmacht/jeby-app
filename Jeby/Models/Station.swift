@@ -14,6 +14,8 @@ struct Station: Decodable, Identifiable, Hashable {
     let lat: Double
     let long: Double
     let depthMeters: Double
+    /// Latest frame from the station's camera (buoy cam / ASIT tower cam).
+    let liveImageUrl: String?
     let profileUrl: String
     let detailsUrl: String
 

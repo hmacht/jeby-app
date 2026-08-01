@@ -48,7 +48,17 @@ struct GradientCard<Content: View>: View {
         .foregroundStyle(.white)
     }
 
-    private var gradient: LinearGradient {
+    private var gradient: LinearGradient { CardStyle.gradient(base: base) }
+}
+
+/// The shared look for the app's station surfaces — the passport cards and the
+/// map pins — so they read as one family.
+enum CardStyle {
+    /// Per-station tint: teal for the MVCO sensor, blue for the NOAA buoy.
+    static func tint(isMVCO: Bool) -> Color { isMVCO ? .teal : .blue }
+
+    /// Dark → bright diagonal wash over a base tint.
+    static func gradient(base: Color) -> LinearGradient {
         LinearGradient(
             colors: [base.mix(with: .black, by: 0.72), base.mix(with: .black, by: 0.24)],
             startPoint: .topLeading,

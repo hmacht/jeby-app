@@ -32,7 +32,6 @@ struct VesselPicker: View {
             }
         } label: {
             HStack(spacing: 6) {
-                Image(systemName: "ferry.fill")
                 Text(selectedName)
                     .lineLimit(1)
                 Image(systemName: "chevron.up.chevron.down")

@@ -3,15 +3,14 @@
 //  Jeby
 //
 //  The BumpyScore™ card, Flighty-style: a gradient tinted by the score, the big
-//  score plus live seas, the first two sentences of the AI analysis, and a
-//  button to read the full analysis (with disclaimers and the score scale).
+//  score, the first two sentences of the AI analysis, and a button to read the
+//  full analysis (with disclaimers and the score scale).
 //
 
 import SwiftUI
 
 struct BumpyScoreCard: View {
     let score: Int?
-    let seasFeet: String?
     let analysis: String?
     let disclaimers: [String]
     let inQuietHours: Bool
@@ -49,15 +48,6 @@ struct BumpyScoreCard: View {
                     }
 
                     Spacer()
-
-                    VStack(alignment: .trailing, spacing: 0) {
-                        Text(seasFeet ?? "—")
-                            .font(.title2.weight(.bold))
-                            .monospacedDigit()
-                        Text("ft seas")
-                            .font(.caption)
-                            .foregroundStyle(.white.opacity(0.7))
-                    }
                 }
 
                 Text(preview)
@@ -120,7 +110,7 @@ private struct BumpyScoreDetailSheet: View {
             .toolbar {
                 ToolbarItem(placement: .topBarTrailing) {
                     Button { dismiss() } label: {
-                        Image(systemName: "xmark.circle.fill")
+                        Image(systemName: "xmark")
                             .foregroundStyle(.secondary)
                     }
                 }

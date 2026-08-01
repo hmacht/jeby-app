@@ -86,7 +86,7 @@ private struct ForecastDetailSheet: View {
             .toolbar {
                 ToolbarItem(placement: .topBarTrailing) {
                     Button { dismiss() } label: {
-                        Image(systemName: "xmark.circle.fill")
+                        Image(systemName: "xmark")
                             .foregroundStyle(.secondary)
                     }
                 }

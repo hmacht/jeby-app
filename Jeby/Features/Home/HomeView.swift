@@ -15,9 +15,10 @@ struct HomeView: View {
     @State private var camera: MapCameraPosition = .region(HomeView.vineyardRegion)
     @State private var selectedStation: Station?
 
-    /// Martha's Vineyard Sound, framed to show both stations with padding.
+    /// Martha's Vineyard Sound, framed to show both stations with padding and
+    /// centered south of them so they sit above the sheet.
     static let vineyardRegion = MKCoordinateRegion(
-        center: CLLocationCoordinate2D(latitude: 41.405, longitude: -70.42),
+        center: CLLocationCoordinate2D(latitude: 41.33, longitude: -70.42),
         span: MKCoordinateSpan(latitudeDelta: 0.62, longitudeDelta: 0.62)
     )
 
@@ -26,13 +27,10 @@ struct HomeView: View {
             ForEach(model.stations) { station in
                 let feet = model.waveHeightFeet(for: station.code)
                 let coord = CLLocationCoordinate2D(latitude: station.lat, longitude: station.long)
-                let tint = SeaState.color(forFeet: feet)
-
                 Annotation(station.name, coordinate: coord) {
                     StationPin(
                         isMVCO: station.isMVCO,
                         waveText: SeaState.label(forFeet: feet),
-                        tint: tint,
                         isSelected: selectedStation?.id == station.id
                     )
                     .onTapGesture { selectedStation = station }
@@ -43,7 +41,7 @@ struct HomeView: View {
         .mapStyle(.standard(elevation: .realistic))
         .ignoresSafeArea(edges: .top)
         .sheet(isPresented: .constant(true)) {
-            HomeContentCard(model: model)
+            SheetRootView(model: model)
                 .presentationDetents([.fraction(0.5), .large])
                 .presentationBackgroundInteraction(.enabled(upThrough: .fraction(0.5)))
                 .presentationBackground(.regularMaterial)
@@ -69,8 +67,10 @@ struct HomeView: View {
 private struct StationPin: View {
     let isMVCO: Bool
     let waveText: String
-    let tint: Color
     let isSelected: Bool
+
+    /// Same tint and wash as the station's passport card in the sheet.
+    private var tint: Color { CardStyle.tint(isMVCO: isMVCO) }
 
     var body: some View {
         HStack(spacing: 5) {
@@ -83,8 +83,8 @@ private struct StationPin: View {
         .foregroundStyle(.white)
         .padding(.horizontal, 10)
         .padding(.vertical, 6)
-        .background(tint.gradient, in: Capsule())
-        .overlay(Capsule().stroke(.white, lineWidth: 1.5))
+        .background(CardStyle.gradient(base: tint), in: Capsule())
+        .overlay(Capsule().stroke(.white.opacity(0.2), lineWidth: 1.5))
         .shadow(color: .black.opacity(0.25), radius: 3, y: 1)
         .scaleEffect(isSelected ? 1.15 : 1)
         .animation(.snappy, value: isSelected)

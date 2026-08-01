@@ -60,12 +60,11 @@ struct HomeContentCard: View {
     }
 
     private var content: some View {
-        ScrollView {
+        ScrollView(.vertical) {
             VStack(alignment: .leading, spacing: 28) {
                 if let conditions = model.conditions {
                     BumpyScoreCard(
                         score: conditions.bumpyScore.score,
-                        seasFeet: model.seasFeet,
                         analysis: conditions.bumpyScore.analysis,
                         disclaimers: conditions.bumpyScore.disclaimers,
                         inQuietHours: model.inQuietHours
@@ -74,11 +73,11 @@ struct HomeContentCard: View {
 
                 alertsSection
 
-                MarineForecastView(forecast: model.forecast, location: model.location)
+                camerasSection
 
                 LiveReadingsView(stations: model.stations, conditions: model.conditions)
 
-                camerasSection
+                MarineForecastView(forecast: model.forecast, location: model.location)
 
                 if let vessel = model.vessel {
                     TunedForView(vessel: vessel)
@@ -87,7 +86,12 @@ struct HomeContentCard: View {
                 footer
             }
             .padding(20)
+            // Clear the floating pill and the home indicator below it.
+            .padding(.bottom, 120)
+            // Pin the content to the sheet's width so nothing can pan sideways.
+            .containerRelativeFrame(.horizontal)
         }
+        .scrollBounceBehavior(.basedOnSize, axes: .horizontal)
         .scrollContentBackground(.hidden)
         .refreshable { await model.refresh() }
     }
@@ -105,17 +109,24 @@ struct HomeContentCard: View {
         }
     }
 
+    /// ASIT tower first, then the buoy's 360° panorama, in one scrolling strip.
+    private var cameras: [CameraStrip.Camera] {
+        var list: [CameraStrip.Camera] = []
+        if let url = model.asitcamURL {
+            list.append(.init(url: url, caption: "MVCO ASIT tower", systemImage: "antenna.radiowaves.left.and.right"))
+        }
+        if let url = model.buoy360URL {
+            list.append(.init(url: url, caption: "Buoy 360°", systemImage: "lifepreserver"))
+        }
+        return list
+    }
+
     @ViewBuilder
     private var camerasSection: some View {
-        if model.buoy360URL != nil || model.asitcamURL != nil {
+        if !cameras.isEmpty {
             VStack(alignment: .leading, spacing: 14) {
                 SectionHeader(title: "Cameras", systemImage: "camera.fill")
-                if let url = model.buoy360URL {
-                    WebcamImage(url: url, caption: "Latest 360° view from the buoy", systemImage: "lifepreserver")
-                }
-                if let url = model.asitcamURL {
-                    WebcamImage(url: url, caption: "Latest view from the MVCO ASIT tower", systemImage: "antenna.radiowaves.left.and.right")
-                }
+                CameraStrip(cameras: cameras)
             }
         }
     }

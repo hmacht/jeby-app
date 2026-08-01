@@ -2,30 +2,16 @@
 //  ContentView.swift
 //  Jeby
 //
-//  Root tab bar: Home (live conditions), Feed, and Profile.
+//  App root: the persistent map with its content sheet. The bottom bar inside
+//  the sheet switches between Report and Feed.
 //
 
 import SwiftUI
 
 struct ContentView: View {
     var body: some View {
-        TabView {
-            HomeView()
-                .tabItem {
-                    Label("Home", systemImage: "house.fill")
-                }
-
-            FeedView()
-                .tabItem {
-                    Label("Feed", systemImage: "square.stack.3d.up.fill")
-                }
-
-            ProfileView()
-                .tabItem {
-                    Label("Profile", systemImage: "person.crop.circle.fill")
-                }
-        }
-        .preferredColorScheme(.dark)
+        HomeView()
+            .preferredColorScheme(.dark)
     }
 }
 
