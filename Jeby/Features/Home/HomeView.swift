@@ -18,7 +18,7 @@ struct HomeView: View {
     /// Martha's Vineyard Sound, framed to show both stations with padding and
     /// centered south of them so they sit above the sheet.
     static let vineyardRegion = MKCoordinateRegion(
-        center: CLLocationCoordinate2D(latitude: 41.33, longitude: -70.42),
+        center: CLLocationCoordinate2D(latitude: 41.27, longitude: -70.42),
         span: MKCoordinateSpan(latitudeDelta: 0.62, longitudeDelta: 0.62)
     )
 
@@ -44,7 +44,7 @@ struct HomeView: View {
             SheetRootView(model: model)
                 .presentationDetents([.fraction(0.5), .large])
                 .presentationBackgroundInteraction(.enabled(upThrough: .fraction(0.5)))
-                .presentationBackground(.regularMaterial)
+                .presentationBackground(CardStyle.sheetSurface)
                 .presentationDragIndicator(.visible)
                 .interactiveDismissDisabled()
                 .sheet(item: $selectedStation) { station in

@@ -54,6 +54,14 @@ struct GradientCard<Content: View>: View {
 /// The shared look for the app's station surfaces — the passport cards and the
 /// map pins — so they read as one family.
 enum CardStyle {
+    /// The sheet's own background: a flat gray, darker than the cards sitting
+    /// on it.
+    static let sheetSurface = Color(.systemGray6)
+
+    /// Background for the sheet's plain cards — a step up from the sheet behind
+    /// them. One knob for the forecast, tuned-for, and about cards.
+    static let surface = Color(.systemGray5)
+
     /// Per-station tint: teal for the MVCO sensor, blue for the NOAA buoy.
     static func tint(isMVCO: Bool) -> Color { isMVCO ? .teal : .blue }
 

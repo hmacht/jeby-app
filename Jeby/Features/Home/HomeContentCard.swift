@@ -24,10 +24,15 @@ struct HomeContentCard: View {
         HStack {
             VStack(alignment: .leading, spacing: 1) {
                 Text("The Jeby Report")
-                    .font(.headline)
-                Text("\(model.location) · \(model.generatedAt.formatted(.dateTime.weekday(.abbreviated).hour().minute()))")
-                    .font(.caption)
-                    .foregroundStyle(.secondary)
+                    .font(.title2.weight(.bold))
+
+                HStack(spacing: 6) {
+                    PulsingDot()
+                    Text("Last updated \(model.generatedAt.formatted(date: .omitted, time: .shortened))")
+                }
+                .font(.caption)
+                .foregroundStyle(.secondary)
+                .padding(.top, 4)
             }
             Spacer()
             if model.state == .loaded {
@@ -41,7 +46,7 @@ struct HomeContentCard: View {
             }
         }
         .padding(.horizontal, 20)
-        .padding(.top, 16)
+        .padding(.top, 28)
         .padding(.bottom, 12)
     }
 
@@ -83,7 +88,7 @@ struct HomeContentCard: View {
                     TunedForView(vessel: vessel)
                 }
 
-                footer
+                AboutCard()
             }
             .padding(20)
             // Clear the floating pill and the home indicator below it.
@@ -100,7 +105,7 @@ struct HomeContentCard: View {
         VStack(alignment: .leading, spacing: 14) {
             SectionHeader(title: "Alerts", systemImage: "exclamationmark.triangle.fill")
             if model.alerts.isEmpty {
-                AlertBanner(level: .info, message: "NOAA has no active alerts for this area.")
+                AlertBanner(level: .info, message: "NOAA has no active alerts for the Vineyard.")
             } else {
                 ForEach(model.alerts) { alert in
                     AlertBanner(level: alert.level, title: alert.event, message: alert.description)
@@ -129,19 +134,6 @@ struct HomeContentCard: View {
                 CameraStrip(cameras: cameras)
             }
         }
-    }
-
-    private var footer: some View {
-        HStack(spacing: 6) {
-            Circle()
-                .fill(.red)
-                .frame(width: 6, height: 6)
-            Text("Last updated \(model.generatedAt.formatted(date: .omitted, time: .shortened)) · NOAA & WHOI")
-        }
-        .font(.caption2)
-        .foregroundStyle(.secondary)
-        .frame(maxWidth: .infinity)
-        .padding(.top, 4)
     }
 
     private func errorView(_ message: String) -> some View {

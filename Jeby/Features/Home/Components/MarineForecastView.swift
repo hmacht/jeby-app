@@ -57,7 +57,7 @@ struct ForecastPeriodCard: View {
         }
         .frame(maxWidth: .infinity, alignment: .leading)
         .padding(16)
-        .background(.regularMaterial, in: RoundedRectangle(cornerRadius: 18))
+        .background(CardStyle.surface, in: RoundedRectangle(cornerRadius: 18))
     }
 }
 

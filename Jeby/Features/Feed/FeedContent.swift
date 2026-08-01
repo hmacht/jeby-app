@@ -14,15 +14,16 @@ struct FeedContent: View {
             HStack {
                 VStack(alignment: .leading, spacing: 1) {
                     Text("Feed")
-                        .font(.headline)
+                        .font(.title2.weight(.bold))
                     Text("Reports from the water")
                         .font(.caption)
                         .foregroundStyle(.secondary)
+                        .padding(.top, 4)
                 }
                 Spacer()
             }
             .padding(.horizontal, 20)
-            .padding(.top, 16)
+            .padding(.top, 28)
             .padding(.bottom, 12)
 
             Divider()

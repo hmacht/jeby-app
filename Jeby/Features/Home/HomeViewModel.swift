@@ -18,8 +18,9 @@ final class HomeViewModel {
     // live server-side; the app only chooses which vessel to score.
     let location = "Marthas Vineyard Sound, MA"
 
-    // Jeby (the Freedom 215) is the default vessel when none is selected.
-    static let defaultVessel = "F215"
+    // Small Craft is the default vessel when none is selected — the broadest
+    // fit for most people opening the app.
+    static let defaultVessel = "SMALL"
 
     enum LoadState: Equatable {
         case idle

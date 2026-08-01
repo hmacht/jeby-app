@@ -41,7 +41,7 @@ struct VesselPicker: View {
             .font(.subheadline.weight(.medium))
             .padding(.horizontal, 14)
             .padding(.vertical, 9)
-            .background(.regularMaterial, in: Capsule())
+            .background(CardStyle.surface, in: Capsule())
         }
         .disabled(disabled)
     }

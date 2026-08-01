@@ -48,7 +48,7 @@ struct TunedForView: View {
             }
             .padding(16)
             .frame(maxWidth: .infinity, alignment: .leading)
-            .background(.regularMaterial, in: RoundedRectangle(cornerRadius: 18))
+            .background(CardStyle.surface, in: RoundedRectangle(cornerRadius: 18))
         }
     }
 }
