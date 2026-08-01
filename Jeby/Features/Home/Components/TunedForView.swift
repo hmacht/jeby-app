@@ -22,7 +22,7 @@ struct TunedForView: View {
 
     var body: some View {
         VStack(alignment: .leading, spacing: 14) {
-            SectionHeader(title: "Tuned for", systemImage: "slider.horizontal.3")
+            SectionHeader(title: "Vessel", systemImage: "sailboat")
 
             VStack(alignment: .leading, spacing: 12) {
                 Text(vessel.name)

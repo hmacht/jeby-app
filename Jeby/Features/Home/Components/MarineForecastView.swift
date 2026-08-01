@@ -19,7 +19,7 @@ struct MarineForecastView: View {
     var body: some View {
         VStack(alignment: .leading, spacing: 14) {
             HStack {
-                SectionHeader(title: "Marine forecast", systemImage: "cloud.sun.fill")
+                SectionHeader(title: "Marine forecast", systemImage: "cloud.sun")
                 if periods.count > 2 {
                     Button("More") { showAll = true }
                         .font(.subheadline.weight(.semibold))

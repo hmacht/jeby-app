@@ -116,7 +116,7 @@ struct HomeContentCard: View {
 
     private var alertsSection: some View {
         VStack(alignment: .leading, spacing: 14) {
-            SectionHeader(title: "Alerts", systemImage: "exclamationmark.triangle.fill")
+            SectionHeader(title: "Alerts", systemImage: "exclamationmark.triangle")
             if model.alerts.isEmpty {
                 AlertBanner(level: .info, message: "NOAA has no active alerts for the Vineyard.")
             } else {
@@ -135,7 +135,7 @@ struct HomeContentCard: View {
             list.append(.init(url: url, caption: "MVCO ASIT tower", systemImage: "antenna.radiowaves.left.and.right"))
         }
         if let url = model.buoy360URL {
-            list.append(.init(url: url, caption: "Buoy 360°", systemImage: "lifepreserver"))
+            list.append(.init(url: url, caption: "Nantucket Sound Buoy 360°", systemImage: "lifepreserver"))
         }
         return list
     }
@@ -144,7 +144,7 @@ struct HomeContentCard: View {
     private var camerasSection: some View {
         if !cameras.isEmpty {
             VStack(alignment: .leading, spacing: 14) {
-                SectionHeader(title: "Cameras", systemImage: "camera.fill")
+                SectionHeader(title: "Cameras", systemImage: "camera")
                 CameraStrip(cameras: cameras)
             }
         }

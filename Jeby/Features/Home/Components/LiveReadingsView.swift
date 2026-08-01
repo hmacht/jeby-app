@@ -14,7 +14,7 @@ struct LiveReadingsView: View {
 
     var body: some View {
         VStack(alignment: .leading, spacing: 14) {
-            SectionHeader(title: "Stations", systemImage: "waveform.path.ecg")
+            SectionHeader(title: "Stations", systemImage: "network")
 
             ForEach(stations) { station in
                 StationPassportCard(

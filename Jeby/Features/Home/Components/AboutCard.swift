@@ -16,7 +16,7 @@ struct AboutCard: View {
 
     var body: some View {
         VStack(alignment: .leading, spacing: 14) {
-            SectionHeader(title: "About", systemImage: "info.circle.fill")
+            SectionHeader(title: "About", systemImage: "info.circle")
 
             VStack(alignment: .leading, spacing: 22) {
                 mission
