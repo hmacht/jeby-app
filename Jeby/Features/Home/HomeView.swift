@@ -11,11 +11,16 @@ import MapKit
 import SwiftUI
 
 struct HomeView: View {
+    @Environment(AuthService.self) private var auth
+
     @State private var model = HomeViewModel()
     @State private var camera: MapCameraPosition = .region(HomeView.vineyardRegion)
     @State private var selectedStation: Station?
     @State private var detent: PresentationDetent = HomeView.collapsedDetent
     @State private var isRefreshing = false
+    /// The open account sheet, if any. Owned here because both the profile
+    /// button on the map and the camera button down in the sheet set it.
+    @State private var authRoute: AuthRoute?
 
     /// The resting height of the sheet, showing the top half of the map.
     static let collapsedDetent: PresentationDetent = .fraction(0.5)
@@ -32,12 +37,32 @@ struct HomeView: View {
         // under the status bar.
         ZStack(alignment: .topTrailing) {
             map
-            refreshButton
-                .padding(.top, 8)
-                .padding(.trailing, 16)
+            VStack(spacing: 10) {
+                profileButton
+                refreshButton
+            }
+            .padding(.top, 8)
+            .padding(.trailing, 16)
         }
         .task {
             if model.state == .idle { await model.load() }
+        }
+        // Signing in closes the gate. A brand-new account continues into
+        // onboarding instead of dropping the user back on the map.
+        .onChange(of: auth.isSignedIn) { _, isSignedIn in
+            guard isSignedIn else { return }
+
+            let startOnboarding = auth.needsOnboarding
+            auth.onboardingHandled()
+            authRoute = nil
+            guard startOnboarding else { return }
+
+            Task {
+                // Let the Get Started sheet finish dismissing first: swapping a
+                // presented sheet's item in the same tick can drop the new one.
+                try? await Task.sleep(for: .milliseconds(450))
+                authRoute = .onboarding
+            }
         }
     }
 
@@ -60,7 +85,11 @@ struct HomeView: View {
         .mapStyle(.standard(elevation: .realistic))
         .ignoresSafeArea(edges: .top)
         .sheet(isPresented: .constant(true)) {
-            SheetRootView(model: model, isCollapsed: detent == Self.collapsedDetent) {
+            SheetRootView(
+                model: model,
+                isCollapsed: detent == Self.collapsedDetent,
+                authRoute: $authRoute
+            ) {
                 detent = Self.collapsedDetent
             }
                 .presentationDetents([Self.collapsedDetent, .large], selection: $detent)
@@ -80,6 +109,29 @@ struct HomeView: View {
                     .presentationDragIndicator(.visible)
                 }
         }
+    }
+
+    /// Your account: opens the profile when signed in, the Get Started card when
+    /// not. Shows your Apple photo or initials so it's obvious which it'll be.
+    private var profileButton: some View {
+        Button {
+            authRoute = auth.isSignedIn ? .profile : .getStarted
+        } label: {
+            Group {
+                if let user = auth.user {
+                    Avatar(user: user, size: 32)
+                } else {
+                    Image(systemName: "person.crop.circle")
+                        .font(.system(size: 18, weight: .semibold))
+                        .foregroundStyle(.primary)
+                }
+            }
+            .frame(width: 40, height: 40)
+            .glassCircle()
+            .shadow(color: .black.opacity(0.15), radius: 4, y: 2)
+        }
+        .buttonStyle(.plain)
+        .accessibilityLabel(auth.isSignedIn ? "Profile" : "Sign in")
     }
 
     /// Manual re-pull of everything — pins, readings, report — for when the
@@ -156,4 +208,5 @@ private extension View {
 
 #Preview {
     HomeView()
+        .environment(AuthService())
 }

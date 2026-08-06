@@ -5,19 +5,27 @@
 //  The content of the map's sheet: a switchable body (Report or Feed) above a
 //  pinned bottom tab bar. The camera button opens a stub for posting a report.
 //
+//  This view also raises the account sheets. They're presented from here rather
+//  than from HomeView because the map's content sheet is always up, and SwiftUI
+//  only honors one sheet per presenter.
+//
 
 import SwiftUI
 
 struct SheetRootView: View {
+    @Environment(AuthService.self) private var auth
+
     let model: HomeViewModel
     /// True while the sheet sits at its short detent. Scrolling is off there, so
     /// a swipe on the content is handed to the sheet and raises it over the map.
     let isCollapsed: Bool
+    /// The open account sheet. Bound to HomeView, which sets it from the profile
+    /// button out on the map.
+    @Binding var authRoute: AuthRoute?
     /// Pulling the report down past its top lowers the sheet again.
     var onPullDown: () -> Void = {}
 
     @State private var tab: SheetTab = .report
-    @State private var showPostReport = false
 
     var body: some View {
         // A ZStack so only the body runs into the bottom safe area — the pill
@@ -40,10 +48,30 @@ struct SheetRootView: View {
             .clipped()
             .ignoresSafeArea(.container, edges: .bottom)
 
-            SheetTabBar(selected: $tab) { showPostReport = true }
+            // Posting writes to the backend, so it needs an account — signed-out
+            // taps get the Get Started card instead of a dead end.
+            SheetTabBar(selected: $tab) {
+                authRoute = auth.isSignedIn ? .postReport : .getStarted
+            }
         }
-        .sheet(isPresented: $showPostReport) {
-            PostReportStub()
+        .sheet(item: $authRoute) { route in
+            switch route {
+            case .getStarted:
+                GetStartedSheet()
+                    .presentationDetents([.large])
+                    .presentationDragIndicator(.visible)
+            case .onboarding:
+                OnboardingFlow()
+            case .profile:
+                EditVesselSheet(vessel: UserVessel(
+                    id: "stub", code: "GW215", name: "Jeby",
+                    description: "Grady White Freedom 215", imageUrl: "",
+                    weight: "3,150 lb", length: "21.5 ft",
+                    horsepower: "150 HP", maxPassengers: "8"
+                ))
+            case .postReport:
+                PostReportStub()
+            }
         }
     }
 }
