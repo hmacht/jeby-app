@@ -14,6 +14,9 @@ struct HomeView: View {
     @Environment(AuthService.self) private var auth
 
     @State private var model = HomeViewModel()
+    /// Owned here rather than inside FeedContent so the refresh button below can
+    /// reload the feed alongside the conditions.
+    @State private var feed = FeedViewModel()
     @State private var camera: MapCameraPosition = .region(HomeView.vineyardRegion)
     @State private var selectedStation: Station?
     @State private var detent: PresentationDetent = HomeView.collapsedDetent
@@ -87,6 +90,7 @@ struct HomeView: View {
         .sheet(isPresented: .constant(true)) {
             SheetRootView(
                 model: model,
+                feed: feed,
                 isCollapsed: detent == Self.collapsedDetent,
                 authRoute: $authRoute
             ) {
@@ -119,14 +123,14 @@ struct HomeView: View {
         } label: {
             Group {
                 if let user = auth.user {
-                    Avatar(user: user, size: 32)
+                    Avatar(user: user, size: 38)
                 } else {
                     Image(systemName: "person.crop.circle")
-                        .font(.system(size: 18, weight: .semibold))
+                        .font(.system(size: 21, weight: .semibold))
                         .foregroundStyle(.primary)
                 }
             }
-            .frame(width: 40, height: 40)
+            .frame(width: 46, height: 46)
             .glassCircle()
             .shadow(color: .black.opacity(0.15), radius: 4, y: 2)
         }
@@ -141,7 +145,11 @@ struct HomeView: View {
             guard !isRefreshing else { return }
             Task {
                 isRefreshing = true
-                await model.refresh()
+                // Both, so the button means "bring everything current" whichever
+                // tab the sheet happens to be showing.
+                async let conditions: Void = model.refresh()
+                async let reports: Void = feed.load()
+                _ = await (conditions, reports)
                 isRefreshing = false
             }
         } label: {
@@ -151,11 +159,11 @@ struct HomeView: View {
                         .controlSize(.small)
                 } else {
                     Image(systemName: "arrow.clockwise")
-                        .font(.system(size: 16, weight: .semibold))
+                        .font(.system(size: 18, weight: .semibold))
                 }
             }
             .foregroundStyle(.primary)
-            .frame(width: 40, height: 40)
+            .frame(width: 46, height: 46)
             .glassCircle()
             .shadow(color: .black.opacity(0.15), radius: 4, y: 2)
         }

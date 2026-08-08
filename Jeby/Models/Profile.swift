@@ -16,6 +16,8 @@ struct Profile: Decodable, Equatable {
     let user: ProfileUser
     let vessels: [UserVessel]
     let pets: [Pet]
+    /// Every report they've ever filed, not just today's.
+    let reportCount: Int
     let completeness: Completeness
 }
 
@@ -24,24 +26,87 @@ struct ProfileUser: Decodable, Equatable {
     let email: String
     let displayName: String
     let photoUrl: String
+    /// A line about the skipper. Optional, and not part of completeness —
+    /// onboarding never asks for it.
+    let bio: String
+    /// Earned by filing enough reports, or granted by hand. The backend owns the
+    /// rule; this is just the answer.
+    let isVerified: Bool
 
     var photoURL: URL? { URL(string: photoUrl) }
 }
 
-/// A boat the user saved. Same free-form specs as the built-in registry, plus
-/// the photo taken during onboarding.
+/// A boat the user owns — their own record, not an entry in the built-in
+/// registry.
+///
+/// The registry's `Vessel` keeps specs as free-form strings because its entries
+/// are size classes ("26-65 ft"). A boat someone actually owns has one length,
+/// so these are numbers, each in a fixed unit named by the field. All optional:
+/// onboarding lets you skip them and owners often don't know their weight.
 struct UserVessel: Decodable, Equatable, Identifiable {
     let id: String
-    let code: String
     let name: String
     let description: String
     let imageUrl: String
-    let weight: String
-    let length: String
-    let horsepower: String
-    let maxPassengers: String
+    /// Where she's kept — "Oak Bluffs, MA". Free text.
+    let homeHarbor: String
+    let lengthFt: Double?
+    let weightLb: Double?
+    let horsepower: Double?
+    let maxPassengers: Int?
 
     var imageURL: URL? { URL(string: imageUrl) }
+
+    /// The specs that are filled in, formatted with their units, joined into one
+    /// line: "21.5 ft · 3,150 lb · 150 hp · 8 aboard".
+    var specSummary: String {
+        [
+            lengthFt.map { "\(VesselSpec.format($0)) ft" },
+            weightLb.map { "\(VesselSpec.format($0)) lb" },
+            horsepower.map { "\(VesselSpec.format($0)) hp" },
+            maxPassengers.map { "\($0) aboard" },
+        ]
+        .compactMap(\.self)
+        .joined(separator: " · ")
+    }
+}
+
+/// Formatting and parsing for the numeric boat specs, so the edit form and the
+/// profile row agree on what "21.5" looks like.
+enum VesselSpec {
+    /// Drops a pointless trailing ".0" and groups thousands — 21.5 and 3,150.
+    static func format(_ value: Double) -> String {
+        let formatter = NumberFormatter()
+        formatter.numberStyle = .decimal
+        formatter.maximumFractionDigits = 1
+        return formatter.string(from: value as NSNumber) ?? String(value)
+    }
+
+    /// A form field's text as a number. Empty means the user cleared it, so nil
+    /// covers both "blank" and "nonsense" — the field is optional either way.
+    /// Grouping separators are stripped so a pasted "3,150" still parses.
+    static func parse(_ text: String) -> Double? {
+        let cleaned = text
+            .replacingOccurrences(of: ",", with: "")
+            .trimmingCharacters(in: .whitespaces)
+        guard !cleaned.isEmpty, let value = Double(cleaned), value > 0 else { return nil }
+        return value
+    }
+
+    /// The same, for the passenger count.
+    static func parseCount(_ text: String) -> Int? {
+        guard let value = parse(text) else { return nil }
+        return Int(value)
+    }
+
+    /// Fills an edit form's field from a stored value.
+    static func text(_ value: Double?) -> String {
+        value.map(format) ?? ""
+    }
+
+    static func text(_ value: Int?) -> String {
+        value.map(String.init) ?? ""
+    }
 }
 
 /// The sailor's pet — a name and a photo.
@@ -97,7 +162,7 @@ enum ProfilePiece: String, CaseIterable, Identifiable {
         case .name: return "person.text.rectangle"
         case .photo: return "person.crop.circle"
         case .boat: return "sailboat.fill"
-        case .pet: return "pawprint.fill"
+        case .pet: return "dog.fill"
         }
     }
 }

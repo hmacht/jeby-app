@@ -35,10 +35,17 @@ struct OnboardingFlow: View {
             .background(CardStyle.sheetSurface)
             .navigationBarTitleDisplayMode(.inline)
             .toolbar {
-                ToolbarItem(placement: .topBarTrailing) {
+                ToolbarItem(placement: .topBarLeading) {
                     // An escape hatch out of the whole flow, not just this step.
-                    Button("Not now") { dismiss() }
-                        .disabled(model?.isSaving ?? false)
+                    // "Skip for now" below already handles leaving one step.
+                    Button {
+                        dismiss()
+                    } label: {
+                        Image(systemName: "xmark")
+                            .font(.system(size: 13, weight: .bold))
+                    }
+                    .disabled(model?.isSaving ?? false)
+                    .accessibilityLabel("Close")
                 }
             }
         }
@@ -67,11 +74,12 @@ struct OnboardingFlow: View {
                 VStack(spacing: 28) {
                     switch model.step {
                     case .name:
-                        NameStep(name: $model.name, image: $model.profileImage)
+                        NameStep(name: $model.name, bio: $model.bio, image: $model.profileImage)
                     case .boat:
                         BoatStep(
                             name: $model.boatName,
                             description: $model.boatDescription,
+                            homeHarbor: $model.boatHomeHarbor,
                             length: $model.boatLength,
                             weight: $model.boatWeight,
                             horsepower: $model.boatHorsepower,

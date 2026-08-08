@@ -84,7 +84,7 @@ private struct ForecastDetailSheet: View {
             .navigationTitle("Marine Forecast")
             .navigationBarTitleDisplayMode(.inline)
             .toolbar {
-                ToolbarItem(placement: .topBarTrailing) {
+                ToolbarItem(placement: .topBarLeading) {
                     Button { dismiss() } label: {
                         Image(systemName: "xmark")
                             .foregroundStyle(.secondary)

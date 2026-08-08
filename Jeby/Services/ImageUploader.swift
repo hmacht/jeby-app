@@ -27,15 +27,17 @@ enum ImageKind {
     case profile
     case boat
     case pet
+    case post
 
     /// Storage path for a given user. The profile photo has a fixed name so a
-    /// re-upload replaces it instead of orphaning the old file; boats and pets
-    /// are per-record and get a fresh name each time.
+    /// re-upload replaces it instead of orphaning the old file; everything else
+    /// is per-record and gets a fresh name each time.
     func path(userID: String) -> String {
         switch self {
         case .profile: return "users/\(userID)/profile.jpg"
         case .boat: return "users/\(userID)/boats/\(UUID().uuidString).jpg"
         case .pet: return "users/\(userID)/pets/\(UUID().uuidString).jpg"
+        case .post: return "users/\(userID)/posts/\(UUID().uuidString).jpg"
         }
     }
 }

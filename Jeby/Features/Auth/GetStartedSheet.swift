@@ -46,7 +46,7 @@ struct GetStartedSheet: View {
             signInActions
         }
         .background(CardStyle.sheetSurface)
-        .overlay(alignment: .topTrailing) {
+        .overlay(alignment: .topLeading) {
             Button {
                 dismiss()
             } label: {
@@ -58,7 +58,7 @@ struct GetStartedSheet: View {
             }
             .buttonStyle(.plain)
             .padding(.top, 16)
-            .padding(.trailing, 16)
+            .padding(.leading, 16)
             .accessibilityLabel("Close")
         }
         .sheet(isPresented: $showEmailForm) {

@@ -36,12 +36,14 @@ final class OnboardingViewModel {
     // MARK: - Step 1: you
 
     var name = ""
+    var bio = ""
     var profileImage: UIImage?
 
     // MARK: - Step 2: your boat
 
     var boatName = ""
     var boatDescription = ""
+    var boatHomeHarbor = ""
     var boatLength = ""
     var boatWeight = ""
     var boatHorsepower = ""
@@ -140,18 +142,20 @@ final class OnboardingViewModel {
 
     private func saveName(userID: String) async throws {
         let trimmedName = name.trimmingCharacters(in: .whitespacesAndNewlines)
+        let trimmedBio = bio.trimmingCharacters(in: .whitespacesAndNewlines)
 
         var photoURL: String?
         if let profileImage {
             photoURL = try await uploader.upload(profileImage, kind: .profile, userID: userID).absoluteString
         }
 
-        guard !trimmedName.isEmpty || photoURL != nil else { return }
+        guard !trimmedName.isEmpty || !trimmedBio.isEmpty || photoURL != nil else { return }
 
         try await client.updateProfile(
             userID: userID,
             displayName: trimmedName.isEmpty ? nil : trimmedName,
-            photoURL: photoURL
+            photoURL: photoURL,
+            bio: trimmedBio.isEmpty ? nil : trimmedBio
         )
         // Keep the Firebase profile in step so the avatar button updates without
         // waiting on a profile fetch.
@@ -167,32 +171,18 @@ final class OnboardingViewModel {
             imageURL = try await uploader.upload(boatImage, kind: .boat, userID: userID).absoluteString
         }
 
-        let vessel = NewVessel(
-            code: Self.vesselCode(from: trimmedName),
+        // Unparseable or blank specs become nil — every one of them is optional,
+        // and this step is meant to be quick.
+        try await client.createVessel(userID: userID, NewVessel(
             name: trimmedName,
             description: boatDescription.trimmingCharacters(in: .whitespacesAndNewlines),
             imageUrl: imageURL,
-            weight: boatWeight.trimmingCharacters(in: .whitespacesAndNewlines),
-            length: boatLength.trimmingCharacters(in: .whitespacesAndNewlines),
-            horsepower: boatHorsepower.trimmingCharacters(in: .whitespacesAndNewlines),
-            maxPassengers: boatMaxPassengers.trimmingCharacters(in: .whitespacesAndNewlines)
-        )
-
-        do {
-            try await client.createVessel(userID: userID, vessel)
-        } catch JebyClientError.http(status: 409) {
-            // Codes are unique per user and derived from the name, so a second
-            // "Jeby" collides. Retry once with a suffix rather than making the
-            // user rename their boat.
-            var retry = vessel
-            retry = NewVessel(
-                code: Self.vesselCode(from: trimmedName, unique: true),
-                name: retry.name, description: retry.description, imageUrl: retry.imageUrl,
-                weight: retry.weight, length: retry.length,
-                horsepower: retry.horsepower, maxPassengers: retry.maxPassengers
-            )
-            try await client.createVessel(userID: userID, retry)
-        }
+            homeHarbor: boatHomeHarbor.trimmingCharacters(in: .whitespacesAndNewlines),
+            lengthFt: VesselSpec.parse(boatLength),
+            weightLb: VesselSpec.parse(boatWeight),
+            horsepower: VesselSpec.parse(boatHorsepower),
+            maxPassengers: VesselSpec.parseCount(boatMaxPassengers)
+        ))
     }
 
     private func savePet(userID: String) async throws {
@@ -207,16 +197,6 @@ final class OnboardingViewModel {
         try await client.createPet(userID: userID, name: trimmedName, imageURL: imageURL)
     }
 
-    /// The backend wants a short per-user handle for each boat. Derive it from
-    /// the name so it stays recognizable rather than asking for one.
-    static func vesselCode(from name: String, unique: Bool = false) -> String {
-        let letters = name.uppercased().filter { $0.isLetter || $0.isNumber }
-        let base = letters.isEmpty ? "BOAT" : String(letters.prefix(12))
-        guard unique else { return base }
-
-        let suffix = String(UUID().uuidString.prefix(4))
-        return "\(base)-\(suffix)"
-    }
 }
 
 private extension Array {

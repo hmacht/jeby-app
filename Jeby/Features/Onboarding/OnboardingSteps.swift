@@ -30,6 +30,7 @@ private struct StepHeader: View {
 
 struct NameStep: View {
     @Binding var name: String
+    @Binding var bio: String
     @Binding var image: UIImage?
 
     var body: some View {
@@ -45,7 +46,15 @@ struct NameStep: View {
                 prompt: "Add photo"
             )
 
-            FormField(label: "Name", placeholder: "Skipper", value: $name)
+            VStack(spacing: 14) {
+                FormField(label: "Name", placeholder: "Skipper", value: $name)
+                FormField(
+                    label: "Bio",
+                    placeholder: "Been running the Sound since '98",
+                    value: $bio,
+                    autocapitalization: .sentences
+                )
+            }
         }
     }
 }
@@ -55,6 +64,7 @@ struct NameStep: View {
 struct BoatStep: View {
     @Binding var name: String
     @Binding var description: String
+    @Binding var homeHarbor: String
     @Binding var length: String
     @Binding var weight: String
     @Binding var horsepower: String
@@ -65,7 +75,7 @@ struct BoatStep: View {
         VStack(spacing: 28) {
             StepHeader(
                 title: "Your boat",
-                subtitle: "Specs are optional — ranges and rough guesses are fine."
+                subtitle: "Specs are optional — skip anything you don't know."
             )
 
             PhotoPickerButton(
@@ -79,15 +89,16 @@ struct BoatStep: View {
             VStack(spacing: 14) {
                 FormField(label: "Boat name", placeholder: "Jeby", value: $name)
                 FormField(label: "Description", placeholder: "Grady White Freedom 215", value: $description)
+                FormField(label: "Home harbor", placeholder: "Oak Bluffs, MA", value: $homeHarbor)
 
                 HStack(spacing: 12) {
-                    FormField(label: "Length", placeholder: "21.5 ft", value: $length)
-                    FormField(label: "Weight", placeholder: "3,150 lb", value: $weight)
+                    SpecFormField(label: "Length", placeholder: "21.5", unit: "ft", value: $length)
+                    SpecFormField(label: "Weight", placeholder: "3,150", unit: "lb", value: $weight)
                 }
 
                 HStack(spacing: 12) {
-                    FormField(label: "Horsepower", placeholder: "150 HP", value: $horsepower)
-                    FormField(label: "Passengers", placeholder: "8", value: $maxPassengers, keyboard: .numbersAndPunctuation)
+                    SpecFormField(label: "Power", placeholder: "150", unit: "hp", value: $horsepower)
+                    SpecFormField(label: "Passengers", placeholder: "8", unit: "", value: $maxPassengers, allowsDecimal: false)
                 }
             }
         }
@@ -109,7 +120,7 @@ struct PetStep: View {
 
             PhotoPickerButton(
                 image: $image,
-                icon: "pawprint.fill",
+                icon: "dog.fill",
                 prompt: "Add photo"
             )
 

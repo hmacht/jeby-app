@@ -27,20 +27,12 @@ struct HomeContentCard: View {
     }
 
     private var header: some View {
-        HStack {
-            VStack(alignment: .leading, spacing: 1) {
-                Text("The Jeby Report")
-                    .font(.title2.weight(.bold))
-
-                HStack(spacing: 6) {
-                    PulsingDot()
-                    Text("Last updated \(model.generatedAt.formatted(date: .omitted, time: .shortened))")
-                }
-                .font(.caption)
-                .foregroundStyle(.secondary)
-                .padding(.top, 4)
+        TabHeader(title: "The Jeby Report") {
+            HStack(spacing: 6) {
+                PulsingDot()
+                Text("Last updated \(model.generatedAt.formatted(date: .omitted, time: .shortened))")
             }
-            Spacer()
+        } accessory: {
             if model.state == .loaded {
                 VesselPicker(
                     vessels: model.vessels,
@@ -51,9 +43,6 @@ struct HomeContentCard: View {
                 }
             }
         }
-        .padding(.horizontal, 20)
-        .padding(.top, 28)
-        .padding(.bottom, 12)
     }
 
     @ViewBuilder
@@ -151,17 +140,13 @@ struct HomeContentCard: View {
     }
 
     private func errorView(_ message: String) -> some View {
-        ContentUnavailableView {
-            Label("Couldn't load conditions", systemImage: "wifi.exclamationmark")
-        } description: {
-            Text(message)
-        } actions: {
-            Button("Try Again") {
-                Task { await model.load() }
-            }
-            .buttonStyle(.borderedProminent)
+        StateMessage(
+            icon: "cloud.bolt.rain.fill",
+            title: "Couldn't load conditions",
+            detail: message,
+            actionTitle: "Try Again"
+        ) {
+            Task { await model.load() }
         }
-        .frame(maxWidth: .infinity, maxHeight: .infinity)
-        .padding(.bottom, 120)
     }
 }

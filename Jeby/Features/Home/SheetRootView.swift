@@ -16,6 +16,8 @@ struct SheetRootView: View {
     @Environment(AuthService.self) private var auth
 
     let model: HomeViewModel
+    /// Owned by HomeView so its refresh button can reload the feed too.
+    let feed: FeedViewModel
     /// True while the sheet sits at its short detent. Scrolling is off there, so
     /// a swipe on the content is handed to the sheet and raises it over the map.
     let isCollapsed: Bool
@@ -40,7 +42,11 @@ struct SheetRootView: View {
                         onPullDown: onPullDown
                     )
                 case .feed:
-                    FeedContent()
+                    FeedContent(
+                        model: feed,
+                        scrollDisabled: isCollapsed,
+                        onPullDown: onPullDown
+                    )
                 }
             }
             .frame(maxWidth: .infinity, maxHeight: .infinity)
@@ -63,14 +69,13 @@ struct SheetRootView: View {
             case .onboarding:
                 OnboardingFlow()
             case .profile:
-                EditVesselSheet(vessel: UserVessel(
-                    id: "stub", code: "GW215", name: "Jeby",
-                    description: "Grady White Freedom 215", imageUrl: "",
-                    weight: "3,150 lb", length: "21.5 ft",
-                    horsepower: "150 HP", maxPassengers: "8"
-                ))
+                ProfileSheet()
+                    .presentationDetents([.large])
+                    .presentationDragIndicator(.visible)
             case .postReport:
-                PostReportStub()
+                // Owns its own height: short for the camera, full for the
+                // review page.
+                PostReportSheet()
             }
         }
     }

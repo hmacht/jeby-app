@@ -108,7 +108,7 @@ private struct BumpyScoreDetailSheet: View {
             .navigationTitle("BumpyScore™")
             .navigationBarTitleDisplayMode(.inline)
             .toolbar {
-                ToolbarItem(placement: .topBarTrailing) {
+                ToolbarItem(placement: .topBarLeading) {
                     Button { dismiss() } label: {
                         Image(systemName: "xmark")
                             .foregroundStyle(.secondary)

@@ -17,11 +17,13 @@ struct SheetTabBar: View {
     @Binding var selected: SheetTab
     var onCamera: () -> Void
 
+    @State private var cameraTaps = 0
+
     var body: some View {
         HStack(spacing: 8) {
-            tab(.report, label: "Report", icon: "water.waves")
+            tab(.report, label: "Home", icon: "water.waves")
             cameraButton
-            tab(.feed, label: "Feed", icon: "square.stack.3d.up.fill")
+            tab(.feed, label: "Reports", icon: "cloud.rainbow.crop", multicolorWhenSelected: true)
         }
         .padding(.horizontal, 10)
         .padding(.vertical, 6)
@@ -31,7 +33,12 @@ struct SheetTabBar: View {
         .padding(.bottom, -10)
     }
 
-    private func tab(_ value: SheetTab, label: String, icon: String) -> some View {
+    private func tab(
+        _ value: SheetTab,
+        label: String,
+        icon: String,
+        multicolorWhenSelected: Bool = false
+    ) -> some View {
         let isSelected = selected == value
 
         return Button {
@@ -40,6 +47,9 @@ struct SheetTabBar: View {
             VStack(spacing: 3) {
                 Image(systemName: icon)
                     .font(.system(size: 20))
+                    // Multicolor paints the symbol's own colors and overrides the
+                    // tint below, so it's only switched on for the selected tab.
+                    .symbolRenderingMode(isSelected && multicolorWhenSelected ? .multicolor : .monochrome)
                 Text(label)
                     .font(.caption2.weight(.semibold))
             }
@@ -51,7 +61,10 @@ struct SheetTabBar: View {
     }
 
     private var cameraButton: some View {
-        Button(action: onCamera) {
+        Button {
+            cameraTaps += 1
+            onCamera()
+        } label: {
             Image(systemName: "camera.fill")
                 .font(.system(size: 24, weight: .semibold))
                 .foregroundStyle(.white)
@@ -59,5 +72,8 @@ struct SheetTabBar: View {
                 .background(Color.accentColor.gradient, in: Circle())
         }
         .buttonStyle(.plain)
+        // A counter rather than a Bool: consecutive taps have to register as
+        // separate events for the feedback to fire each time.
+        .sensoryFeedback(.impact(weight: .medium), trigger: cameraTaps)
     }
 }
